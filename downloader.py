@@ -3,8 +3,9 @@ from bs4 import BeautifulSoup
 import urllib.request
 import os
 import getpass
-
-user = getpass.getuser()
+import json
+from time import sleep 
+USER = getpass.getuser()
 #вставляем ответ xhr запроса формата txt с данными и подключаемся к ним
 #для теста https://audio-lib.club/wp-content/uploads/playlists/transerfing-realnosti-i-v-stupeni.txt
 txt = ""
@@ -12,11 +13,11 @@ def EnterUrl():
     url = input(" введите ссылку xhr запроса > ")
     if url[-3:] == "txt":
         print("успех")
-        html = requests.Session().get(url).content
-        soup = BeautifulSoup(html, "lxml")#данные прео бразуем в ссылки и названия
         global txt
-        txt = soup.text.replace('file', '').replace('title', '').replace('}', '').replace('{', '').replace(' ', '').replace('"', ' ').replace(':', '').replace(',', '').replace('https', ' https:').split()
-    else:
+        html = requests.Session().get(url).content
+        soup = BeautifulSoup(html, "lxml").text
+        txt = soup.replace("[","").replace("]","").replace(" ","").replace("},","} ").split()
+    else: 
         print("ошибка ввода")
         EnterUrl()
         url = ""
@@ -25,14 +26,20 @@ EnterUrl()
 #распределяем по соответсвующим спискам
 fileName = []
 fileLinks = []
-
-for l in txt[0::2]:
-    fileLinks.append(l)
-for n in txt[1::2]:
-    fileName.append(n)
+keytitle = "title"
+keyfile = "file"
+#переводим с json в списки
+for l in txt:
+    obj = json.loads(l)
+    if keytitle in obj:
+        print(obj[keytitle])
+        fileName.append(obj[keytitle])
+    if keytitle in obj:
+        fileLinks.append(obj[keyfile])
+        print(obj[keyfile])
 
 #создание папки для хранения mp3
-dir = "C://Users/"+user+"/Desktop/books/"
+dir = "C://Users/"+USER+"/Desktop/books/"
 namedir = str(0)
 #для созадния разных папок для книг
 n = 1
@@ -53,9 +60,10 @@ for n in range(0,m):
 i=0 
 for download in fileLinks[1:]:
     r = requests.get(download)
+    sleep(1)
     if r :
         print("загрузил: " + fileName[i])
         urllib.request.urlretrieve(download, dir + namedir + '/' + fileName[i]  + ".mp3")
     else:
-        print("error " + r.status_code + fileName[i])
-    i+=1
+        print("error " +str(r.status_code) + fileName[i])
+    i=i+1
