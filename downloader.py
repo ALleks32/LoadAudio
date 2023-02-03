@@ -1,10 +1,18 @@
+from time import sleep 
+import os
+import getpass
 import requests 
 from bs4 import BeautifulSoup 
 import urllib.request
+<<<<<<< Updated upstream
 import os
 import getpass
 import json
 from time import sleep 
+=======
+import json
+
+>>>>>>> Stashed changes
 USER = getpass.getuser()
 #вставляем ответ xhr запроса формата txt с данными и подключаемся к ним
 #для теста https://audio-lib.club/wp-content/uploads/playlists/transerfing-realnosti-i-v-stupeni.txt
